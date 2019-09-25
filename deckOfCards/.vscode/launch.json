@@ -22,6 +22,15 @@
                 "traceResponse": false,
                 "engineLogging": false
             }
+        },
+        {
+            "name": "CodeLLDB",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.launchTargetPath}",
+            "args": [
+            ],
+            "stdio": ["testsets/test1.in", null, null]
         }
     ]
 }
