@@ -7,6 +7,7 @@
 #include <climits>
 #include <deque>
 #include <iostream>
+#include <sstream>
 #include <map>
 #include <queue>
 #include <set>
@@ -51,10 +52,29 @@ void do_test() {
     cout << res << "\n";
 }
 
+
+pair<int, int> algorithm (int num_cards, vector<int> array, int desired_sum) {
+    cout << 12 << endl;
+    return pair<int, int> (0,0);
+}
+
 int main() {
     std::ios_base::sync_with_stdio(false);
-    int T;
-    cin >> T;
-    REP(i, T) { do_test(); }
+    int test_cases;
+    cin >> test_cases;
+    for (unsigned int i = 0 ; i < test_cases; i ++) {
+        int num_cards, desired_sum;
+        vector<int> array = {1};
+        cin >> num_cards;
+        cin >> desired_sum;
+        string line;
+        getline(cin, line);
+        istringstream iss(line);
+        int a;
+        while (iss >> a) {
+            array.push_back(a);
+        }
+        algorithm(num_cards, array, desired_sum);
+    }
     return 0;
 }
