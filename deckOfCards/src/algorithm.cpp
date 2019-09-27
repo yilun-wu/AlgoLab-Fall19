@@ -16,14 +16,14 @@
 using namespace std;
 
 pair<int, int> algorithm (int num_cards, vector<int> array, int desired_sum) {
-    int left = 0, right = 0;
-    std::vector<int> sum = {array[0]};
-    for (unsigned int i = 1; i < array.size(); i ++) {
+    int left = 0, right = 1;
+    std::vector<int> sum = {0};
+    for (unsigned int i = 0; i < array.size(); i ++) {
         sum.push_back(sum.back() + array[i]);
     }
 
     int best_left = 0, best_right = 0, best_diff = numeric_limits<int>::max();
-    while (right != array.size()) {
+    while (right != sum.size()) {
         int partial_sum = sum[right] - sum[left];
         if (abs(desired_sum - partial_sum) < best_diff) {
             best_diff = abs(desired_sum - partial_sum);
@@ -59,7 +59,7 @@ int main() {
         }
 
         pair<int, int> ret = algorithm(num_cards, array, desired_sum);
-        cout << ret.first + 1 << " " << ret.second << endl;
+        cout << ret.first << " " << ret.second - 1 << endl;
     }
     return 0;
 }
