@@ -1,10 +1,9 @@
-// Even pairs
+// Deck of Cards
 // Week 1
-// Aleksander Matusiak
 
 #include <algorithm>
 #include <cassert>
-#include <climits>
+#include <limits>
 #include <deque>
 #include <iostream>
 #include <sstream>
@@ -12,50 +11,38 @@
 #include <queue>
 #include <set>
 #include <vector>
-
-#define REP(i, n) for (int i = 0; i < (n); ++i)
-#define ST first
-#define ND second
-#define PB push_back
-#define MP make_pair
-#define deb(a) a
+#include <cmath>
 
 using namespace std;
 
-typedef pair<int, int> PII;
-typedef vector<PII> VPII;
-typedef vector<int> VI;
-typedef long long int LL;
-
-void do_test() {
-    int n;
-    cin >> n;
-
-    int sum = 0, res = 0;
-    // Counters for number of odd and even prefix sums.
-    int odds = 0, evens = 1;
-    REP(i, n) {
-        int a;
-        cin >> a;
-        sum += a;
-        // We are relying on the fact that sum of each interval is equal to
-        // the difference between appropriate prefix sums.
-        if (sum % 2) {
-            res += odds;
-            odds++;
-        } else {
-            res += evens;
-            evens++;
-        }
+pair<int, int> algorithm (int num_cards, vector<int> array, int desired_sum) {
+    int left = 0, right = 0;
+    std::vector<int> sum = {array[0]};
+    for (unsigned int i = 1; i < array.size(); i ++) {
+        sum.push_back(sum.back() + array[i]);
     }
 
-    cout << res << "\n";
-}
+    int best_left = 0, best_right = 0, best_diff = numeric_limits<int>::max();
+    while (right != array.size()) {
+        int partial_sum = sum[right] - sum[left];
+        if (abs(desired_sum - partial_sum) < best_diff) {
+            best_diff = abs(desired_sum - partial_sum);
+            best_left = left; best_right = right;
+        }
+        if ((sum[right] - sum[left]) < desired_sum) {
+            right ++;
+        }
+        else if ((sum[right] - sum[left] > desired_sum)) {
+            left ++;
+        }
+        else
+        {
+            return pair<int, int>(left, right);
+        }
+        
+    }
 
-
-pair<int, int> algorithm (int num_cards, vector<int> array, int desired_sum) {
-    cout << 12 << endl;
-    return pair<int, int> (0,0);
+    return pair<int, int> (best_left, best_right);
 }
 
 int main() {
@@ -64,17 +51,15 @@ int main() {
     cin >> test_cases;
     for (unsigned int i = 0 ; i < test_cases; i ++) {
         int num_cards, desired_sum;
-        vector<int> array = {1};
+        vector<int> array;
         cin >> num_cards;
         cin >> desired_sum;
-        string line;
-        getline(cin, line);
-        istringstream iss(line);
-        int a;
-        while (iss >> a) {
-            array.push_back(a);
+        for (unsigned int j = 0; j < num_cards; j ++) {
+            int a; cin >> a; array.push_back(a);
         }
-        algorithm(num_cards, array, desired_sum);
+
+        pair<int, int> ret = algorithm(num_cards, array, desired_sum);
+        cout << ret.first + 1 << " " << ret.second << endl;
     }
     return 0;
 }
