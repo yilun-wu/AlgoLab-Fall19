@@ -2,6 +2,7 @@
 // Week 1
 
 #include <algorithm>
+#include <list>
 #include <cassert>
 #include <limits>
 #include <deque>
@@ -15,22 +16,22 @@
 
 using namespace std;
 
-int algorithm (vector<vector<int>> pos_words, int num_words) {
+int algorithm (vector<list<int>> pos_words, int num_words) {
     int shortest_length = numeric_limits<int>::max();
     int left = 0, right = 0;
     map<int, int> head = {};
     for (unsigned int i = 0; i < num_words; i ++) {
-        head.insert({pos_words[i][0], i});
+        head[pos_words[i].front()] = i;
     }
-    
+
     while (true) {
         left = head.begin()->first;
         right = (--head.end())->first;
         if ((right - left + 1) < shortest_length) shortest_length = right - left + 1;
         
-        pos_words[head.begin()->second].erase(pos_words[head.begin()->second].begin());
-        if (pos_words[head.begin()->second].size() > 0) {
-            head.insert({pos_words[head.begin()->second][0], head.begin()->second});
+        pos_words[head.begin()->second].pop_front();
+        if (!pos_words[head.begin()->second].empty()) {
+            head.insert({pos_words[head.begin()->second].front(), head.begin()->second});
             head.erase(head.begin());
         }
         else {
@@ -46,7 +47,7 @@ int main() {
     cin >> num_test_cases;
 
     for (unsigned int i = 0; i < num_test_cases; i ++) {
-        std::vector<std::vector<int>> pos_words;
+        std::vector<std::list<int>> pos_words;
         int num_words;
         cin >> num_words;
         std::vector<int> num_occurances;
@@ -57,8 +58,8 @@ int main() {
             num_occurances.push_back(occur);
         }
         for (unsigned int j = 0; j < num_words; j ++) {
-            std::vector<int> pos_word;
-            pos_word.reserve(num_occurances[j]);
+            std::list<int> pos_word;
+            //pos_word.reserve(num_occurances[j]);
             int pos;
             for (unsigned int k = 0; k < num_occurances[j]; k ++) {
                 cin >> pos; pos_word.push_back(pos);
