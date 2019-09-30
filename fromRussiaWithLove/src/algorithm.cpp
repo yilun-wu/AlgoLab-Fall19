@@ -13,14 +13,9 @@ int query (int i, int j, int num_pax, int num_sov, int k, vector<vector<int>> & 
     else {
         int curr_length = j - i + 1;
         int ret;
-        if ((num_sov - curr_length) % num_pax != k) {
-            int turns_avail;
-            if ((num_sov - curr_length) % num_pax < k) {
-                turns_avail = k - (num_sov - curr_length) % num_pax;
-            }
-            else {
-                turns_avail = num_pax - (num_sov - curr_length) % num_pax + k;
-            }
+        int turn = (num_sov - curr_length) % num_pax;
+        if (turn != k) {
+            int turns_avail = turn < k ? k - turn : k - turn + num_pax;
             if (curr_length <= turns_avail) ret = 0;
             else ret = min(query(i+1, j, num_pax, num_sov, k, table, sov),
                         query(i, j-1, num_pax, num_sov, k, table, sov));
