@@ -1,3 +1,6 @@
+# VSCode
+*.code-workspace
+
 # CMake
 build/
 CMakeLists.txt.user
