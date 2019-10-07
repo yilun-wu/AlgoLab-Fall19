@@ -14,15 +14,15 @@ typedef K::Segment_2 S;
 using namespace std;
 
 bool algorithm(int n) {
-    CGAL::set_ascii_mode(cin);
-    K::Ray_2 ray;
-    cin >> ray;
+    long int x1, y1, x2, y2;
+    cin >> x1 >> y1 >> x2 >> y2;
+    K::Ray_2 ray (P(x1, y1), P(x2, y2));
 
     bool hit = false;
     for (unsigned int i = 0; i < n; i ++) {
-        K::Segment_2 seg;
-        cin >> seg;
-        if (CGAL::do_intersect(ray, seg)) {
+        cin >> x1 >> y1 >> x2 >> y2;
+        K::Segment_2 seg(P(x1, y1), P(x2, y2));
+        if (!hit && CGAL::do_intersect(ray, seg)) {
             hit = true;
         }
     }
