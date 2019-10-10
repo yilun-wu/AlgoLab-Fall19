@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(lldb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            // Resolved by CMake Tools:
+            "program": "${command:cmake.launchTargetPath}",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "setupCommands": [
+                {"text": "settings set target.input-path testsets/test1.in"}
+                ,{"text": "settings set target.output-path testsets/test1-eval.out"}
+            ],
+            "MIMode": "lldb",
+            "logging": {
+                "trace": false,
+                "traceResponse": false,
+                "engineLogging": false
+            }
+        },
+        {
+            "name": "CodeLLDB",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.launchTargetPath}",
+            "args": [
+            ],
+            "stdio": ["testsets/test4.in", null, null]
+        }
+    ]
+}
