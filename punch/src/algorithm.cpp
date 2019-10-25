@@ -7,7 +7,7 @@
 #include <stdexcept>
 
 using namespace std;
-typedef tuple<int, int, vector<bool>> IIVB;
+typedef tuple<int, int, vector<int>> IIVB;
 
 struct drink {
     int cost;
@@ -23,20 +23,21 @@ bool compare_min_cost_max_variety (const IIVB & lfs, const IIVB & rhs) {
 
 IIVB query(int required_volume, vector<IIVB> & table, vector<drink>& drinks) {
     if (required_volume <= 0) {
-        return IIVB(0, 0, vector<bool>(drinks.size(), 0));
+        return IIVB(0, 0, vector<int>(drinks.size(), 0));
     }
     if (get<0>(table[required_volume]) >= 0) return table[required_volume];
     else {
-        vector<IIVB> CVB; // temp cost and variety by taking each element
-        CVB.resize(drinks.size());
+        IIVB best_CVB = IIVB(numeric_limits<int>::max(), -1, vector<int>(drinks.size(), 0));
         for (int i = 0; i < drinks.size(); i ++) {
-            CVB[i] = query(required_volume - drinks[i].vol, table, drinks);
-            get<0>(CVB[i]) += drinks[i].cost;
-            get<1>(CVB[i]) += get<2>(CVB[i])[i] ? 0 : 1;
-            get<2>(CVB[i])[i] = 1;
+            IIVB ret = query(required_volume - drinks[i].vol, table, drinks);
+            get<0>(ret) += drinks[i].cost;
+            get<1>(ret) += get<2>(ret)[i] ? 0 : 1;
+            get<2>(ret)[i] = 1;
+            if (compare_min_cost_max_variety(ret, best_CVB)) {
+                best_CVB = ret;
+            }
         }
-        sort(CVB.begin(), CVB.end(), compare_min_cost_max_variety);
-        table[required_volume] = *CVB.begin();
+        table[required_volume] = best_CVB;
         return table[required_volume];
     }
 }
@@ -50,7 +51,7 @@ void algorithm() {
         drinks.emplace_back(c, v);
     }
 
-    vector<IIVB> min_cost_max_variety(required_vol + 1, IIVB(-1, -1, vector<bool>(n, 0)));
+    vector<IIVB> min_cost_max_variety(required_vol + 1, IIVB(-1, -1, vector<int>(n, 0)));
     IIVB ret = query(required_vol, min_cost_max_variety, drinks);
     cout << get<0>(ret) << ' ' << get<1>(ret) << '\n';
 }
