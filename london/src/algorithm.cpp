@@ -69,14 +69,22 @@ void algorithm() {
     graph G(k_nl);
     edge_adder adder(G);
     vector<int> pairs(k_nl, 0);
+    vector<vector<int>> num_pairs(k_nl, vector<int>(k_nl, 0));
 
     for (int i = 0; i < h; i ++ ) {
         for (int j = 0; j < w; j ++) {
             int a = letters_f[i][j];
             int b = letters_b[i][w - j - 1];
-            adder.add_edge(a, b, 1);
-            adder.add_edge(b, a, 1);
+            num_pairs[a][b] ++;
             pairs[a] ++; pairs[b] ++;
+        }
+    }
+    for (int i = 0; i < k_nl; i ++ ) {
+        for(int j = 0; j < k_nl; j ++) {
+            if (num_pairs[i][j] + num_pairs[j][i] > 0) {
+                if (i == j) adder.add_edge(i, j, num_pairs[i][j]);
+                else adder.add_edge(i, j, num_pairs[i][j] + num_pairs[j][i]);
+            }   
         }
     }
 
@@ -84,9 +92,7 @@ void algorithm() {
     const vertex_desc v_sink = boost::add_vertex(G);
     
     for (int i = 0; i < input.size(); i ++) {
-        //if (input[i]) {
-            adder.add_edge(v_source, i, input[i]);
-        //}
+        adder.add_edge(v_source, i, input[i]);
     }
 
     for (int i = 0; i < k_nl; i++) {
