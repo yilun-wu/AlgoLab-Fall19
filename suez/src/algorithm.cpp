@@ -27,136 +27,118 @@ struct poster {
     poster(int id, int x, int y, bool is_free): id(id), x(x), y(y), is_free(is_free) {}
 };
 
-typedef multimap<int, poster, std::less<int>> MM;
-
-
-struct less_x
-{
-    inline bool operator() (const poster& struct1, const poster& struct2)
-    {
-        return (struct1.x < struct2.x);
-    }
-};
-struct less_y
-{
-    inline bool operator() (const poster& struct1, const poster& struct2)
-    {
-        return (struct1.y < struct2.y);
-    }
-};
-
+typedef multimap<int, poster, std::less<int>> MM_I;
+typedef multimap<int, poster, std::greater<int>> MM_D;
 
 typedef vector<poster> P;
 
 inline bool collide_x(int h, int w, int x0, int y0, int x1, int y1) {
-    return abs(y1-y0) * w <= h * abs(x1-x0);
+    return abs(y1-y0) * (long)w <= (long) h * abs(x1-x0);
 }
 
-inline bool less_a_max(pair<int, int> a1, pair<int, int> a2) {
-    return a1.second < a2.second;
-}
-
-pair<size_t, bool> query_tightest_constraint(int i, P &posters, MM &sort_x, MM &sort_y, int h, int w) {
-    int a_max_lx, a_max_ux, a_max_ly, a_max_uy;
-    //find lower_x, upper_x
-    MM::iterator search = sort_x.find(posters[i].x);
-    while (search->second.id != i) search ++;
-    MM::iterator lower_x_idx, upper_x_idx = search; lower_x_idx --; upper_x_idx ++;
-    while (distance(lower_x_idx, sort_x.begin()) >= 0 && !collide_x(h, w, search->second.x, search->second.y, lower_x_idx->second.x, lower_x_idx->second.y)) {
-        lower_x_idx --;
-    }
-    if (lower_x_idx == --sort_x.begin()) a_max_lx = numeric_limits<int>::max();
-    else a_max_lx = abs(search->second.x - lower_x_idx->second.x)*2/w - 1;
-    while (upper_x_idx != sort_x.end() && !collide_x(h, w, search->second.x, search->second.y, upper_x_idx->second.x, upper_x_idx->second.y)) {
-        upper_x_idx ++;
-    }
-    if (upper_x_idx == sort_x.end()) a_max_ux = numeric_limits<int>::max();
-    else a_max_ux = abs(search->second.x - upper_x_idx->second.x)*2/w - 1;
-
-    //find lower_y, upper_y
-    search = sort_y.find(posters[i].y);
-    MM::iterator lower_y_idx, upper_y_idx = search; lower_y_idx --; upper_y_idx ++;
-    while (distance(lower_y_idx, sort_y.begin()) >= 0 && collide_x(h, w, search->second.x, search->second.y, lower_x_idx->second.x, lower_x_idx->second.y)) {
-        lower_y_idx --;
-    }
-    if (lower_y_idx == --sort_y.begin()) a_max_ly = numeric_limits<int>::max();
-    else a_max_ly = abs(search->second.y - lower_y_idx->second.y)*2/h - 1;
-    while (upper_y_idx != sort_y.end() && collide_x(h, w, search->second.x, search->second.y, upper_x_idx->second.x, upper_x_idx->second.y)) {
-        upper_y_idx ++;
-    }
-    if (upper_y_idx == sort_y.end()) a_max_uy = numeric_limits<int>::max();
-    else a_max_ly = abs(search->second.y - upper_y_idx->second.y)*2/h - 1;
-    vector<pair<int, int>> a_max;
-    a_max.emplace_back(lower_x_idx->second.id, a_max_lx);
-    a_max.emplace_back(upper_x_idx->second.id, a_max_ux);
-    a_max.emplace_back(lower_y_idx->second.id, a_max_ly);
-    a_max.emplace_back(upper_y_idx->second.id, a_max_uy);
-    return pair<size_t, bool>(min_element(a_max.begin(), a_max.end(), less_a_max)->first, 
-                            min_element(a_max.begin(), a_max.end(), less_a_max) - a_max.begin() <= 2);
-}
 
 void algorithm() {
     int n, m, h, w; cin >> n >> m >> h >> w;
     Program lp(CGAL::SMALLER, true, 1, false, 0);
-    P posters;
+    P free, fixed;
     for (int i = 0; i < n; i ++) {
         int x, y; cin >> x >> y;
-        posters.emplace_back(i, x, y, true);
+        free.emplace_back(i, x, y, true);
     }
     for (int i = 0; i < m; i ++) {
         int x, y; cin >> x >> y;
-        posters.emplace_back(n + i, x, y, false);
+        fixed.emplace_back(n + i, x, y, false);
     }
 
-    MM sort_x, sort_y;
-    for (int i = 0; i < posters.size(); i ++) {
-        sort_x.insert({posters[i].x, posters[i]});
-        sort_y.insert({posters[i].y, posters[i]});
+    MM_I sort_x_i, sort_y_i;
+    MM_D sort_x_d, sort_y_d;
+    for (int i = 0; i < fixed.size(); i ++) {
+        sort_x_i.insert({fixed[i].x, fixed[i]});
+        sort_y_i.insert({fixed[i].y, fixed[i]});
+        sort_x_d.insert({fixed[i].x, fixed[i]});
+        sort_y_d.insert({fixed[i].y, fixed[i]});
     }
 
-
-
-    // vector<size_t> sort_x_idx(posters.size()); iota(sort_x_idx.begin(), sort_x_idx.end(), 0);
-    // vector<size_t> sort_y_idx(posters.size()); iota(sort_y_idx.begin(), sort_y_idx.end(), 0);
-
-    // sort(sort_x_idx.begin(), sort_x_idx.end(), 
-    //     [&posters](size_t i1, size_t i2) {return posters[i1].x < posters[i2].x;});
-    // sort(sort_y_idx.begin(), sort_y_idx.end(), 
-    //     [&posters](size_t i1, size_t i2) {return posters[i1].y < posters[i2].y;});
+    // add pair-wise constraint for free posters
+    int con = 0;
+    for (int i = 0; i < n; i ++) {
+        for (int j = 0; j < i; j ++) {
+            if (collide_x(h, w, free[i].x, free[i].y, free[j].x, free[j].y)) {
+                lp.set_a(i, con, w);
+                lp.set_a(j, con, w);
+                lp.set_b(con, 2*abs(free[i].x - free[j].x));
+                con++;
+            }
+            else {
+                lp.set_a(i, con, h);
+                lp.set_a(j, con, h);
+                lp.set_b(con, 2*abs(free[i].y - free[j].y));
+                con++;
+            }
+        }
+    }
 
     for (int i = 0; i < n; i ++) {
-        lp.set_c(i, 1);
-        //find closest contraint for each free point
-        pair<size_t, bool> ret = query_tightest_constraint(i, posters, sort_x, sort_y, h, w);
-        size_t idx = ret.first; bool dir = ret.second;
-        if (dir) {
-            lp.set_a(i, i, w/2);
-            if (posters[idx].is_free) {
-                lp.set_a(idx, i, w/2);
-                lp.set_b(i, abs(posters[i].x - posters[idx].x));
+        int x0 = free[i].x; int y0 = free[i].y;
+        MM_I::iterator x_plus_itr = sort_x_i.upper_bound(x0);
+        MM_D::iterator x_minus_itr = sort_x_d.upper_bound(x0);
+        MM_I::iterator y_plus_itr = sort_y_i.upper_bound(y0);
+        MM_D::iterator y_minus_itr = sort_y_d.upper_bound(y0);
+        while (x_plus_itr != sort_x_i.end()) {
+            if (collide_x(h, w, x0, y0, x_plus_itr->second.x, x_plus_itr->second.y)) {
+                // set up a constraint
+                lp.set_a(i, con, w);
+                lp.set_b(con, 2*abs(x_plus_itr->second.x - x0) - w);
+                con++;
+                break;
             }
-            else {
-                lp.set_b(i, abs(posters[i].x - posters[idx].x) - w/2);
-            }
+            else x_plus_itr ++;
         }
-        else {
-            lp.set_a(i, i, h/2);
-            if (posters[idx].is_free) {
-                lp.set_a(idx, i, h/2);
-                lp.set_b(i, abs(posters[i].y - posters[idx].y));
+        while (x_minus_itr != sort_x_d.end()) {
+            if (collide_x(h, w, x0, y0, x_minus_itr->second.x, x_minus_itr->second.y)) {
+                // set up a constraint
+                lp.set_a(i, con, w);
+                lp.set_b(con, 2*abs(x_minus_itr->second.x - x0) - w);
+                con++;
+                break;
             }
-            else {
-                lp.set_b(i, abs(posters[i].y - posters[idx].y) - h/2);
-            }
+            else x_minus_itr ++;
         }
+        while (y_plus_itr != sort_y_i.end()) {
+            if (!collide_x(h, w, x0, y0, y_plus_itr->second.x, y_plus_itr->second.y)) {
+                // set up a constraint
+                lp.set_a(i, con, h);
+                lp.set_b(con, 2*abs(y_plus_itr->second.y - y0) - h);
+                con++;
+                break;
+            }
+            else y_plus_itr ++;
+        }
+        while (y_minus_itr != sort_y_d.end()) {
+            if (!collide_x(h, w, x0, y0, y_minus_itr->second.x, y_minus_itr->second.y)) {
+                // set up a constraint
+                lp.set_a(i, con, h);
+                lp.set_b(con, 2*abs(y_minus_itr->second.y - y0) - h);
+                con++;
+                break;
+            }
+            else y_minus_itr ++;
+        }
+
+    }
+
+
+    for (int i = 0; i < n; i ++) {
+        lp.set_c(i, -1);
     }
 
     // solve the program, using ET as the exact type
     Solution s = CGAL::solve_linear_program(lp, ET());
     assert(s.solves_linear_program(lp));
+    assert(s.is_optimal());
+    unsigned int opt_value = round(-CGAL::to_double(s.objective_value()) * (h+w) * 2);
   
-  
-    std::cout << s; 
+    std::cout << opt_value  << "\n"; 
 
 
 }
