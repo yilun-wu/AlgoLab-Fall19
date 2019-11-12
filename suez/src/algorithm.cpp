@@ -136,7 +136,7 @@ void algorithm() {
     Solution s = CGAL::solve_linear_program(lp, ET());
     assert(s.solves_linear_program(lp));
     assert(s.is_optimal());
-    unsigned int opt_value = round(-CGAL::to_double(s.objective_value()) * (h+w) * 2);
+    unsigned int opt_value = ceil(-CGAL::to_double(s.objective_value()) * (h+w) * 2);
   
     std::cout << opt_value  << "\n"; 
 
