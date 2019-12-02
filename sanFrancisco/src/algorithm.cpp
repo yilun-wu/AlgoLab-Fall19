@@ -12,17 +12,20 @@ struct canals {
     canals(int u, int v, int p): u(u), v(v), p(p) {}
 };
 
-int query(int node, int step, vector<vector<int>> &table, vector<vector<canals>> &canals) {
-    int ret;
+long query(int node, int step, vector<vector<long>> &table, vector<vector<canals>> &canals) {
+    long ret;
     if (table[node][step] != -1) return table[node][step];
     else if (step == 0) ret = 0;
     else {
         int num_canals = canals[node].size();
         if (num_canals == 0) {
-            return query(0, step, table, canals);
+            if (node == 0) {
+                ret = 0;
+            }
+            else return query(0, step, table, canals);
         }
         else {
-            vector<int> intermediate_scores(num_canals);
+            vector<long> intermediate_scores(num_canals);
             for (int i = 0; i < num_canals; i ++) {
                 int next_node = canals[node][i].v;
                 intermediate_scores[i] = canals[node][i].p + query(next_node, step - 1, table, canals);
@@ -35,15 +38,15 @@ int query(int node, int step, vector<vector<int>> &table, vector<vector<canals>>
 }
 
 void algorithm() {
-    int n, m, x, k; cin >> n >> m >> x >> k;
-    vector<vector<int>> table(n, vector<int>(k+1, -1));
+    int n, m; long x; int k; cin >> n >> m >> x >> k;
+    vector<vector<long>> table(n, vector<long>(k+1, -1));
     vector<vector<canals>> canals(n);
     for (int i = 0; i < m; i ++) {
         int u, v, p; cin >> u >> v >> p;
         canals[u].emplace_back(u, v, p);
     }
     for (int i = 1; i <= k; i ++) {
-        int max_score = query(0, i, table, canals);
+        long max_score = query(0, i, table, canals);
         if (max_score >= x) {
             cout << i << "\n";
             return;

@@ -30,7 +30,7 @@
             "program": "${command:cmake.launchTargetPath}",
             "args": [
             ],
-            "stdio": ["testsets/sample.in", null, null]
+            "stdio": ["testsets/test2.in", null, null]
         }
     ]
 }
