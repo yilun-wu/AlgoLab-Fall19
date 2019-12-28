@@ -114,14 +114,52 @@ void algorithm() {
     //LP 
     Program lp (CGAL::SMALLER, true, 0, false, 0);
     // variables n*m litres to be transported
-    // constraint: Supply
+    int c_base = 0;
+    // constraint: Supply - sum(1*x) < di
+    for (int i = 0; i < n; i ++) {
+        for (int j = 0; j < m; j ++) {
+            lp.set_a(i*m+j, i, 1);
+        }
+        lp.set_b(i, W[i].supply);
+    }
+    c_base += n;
 
     // constraint: Demand Equality
+    for (int j = 0; j < m; j ++) {
+        for (int i = 0; i < n; i ++) {
+            lp.set_a(i*m+j, c_base+j, 1);
+        }
+        lp.set_b(c_base + j, S[j].demand);
+        lp.set_r(c_base + j, CGAL::EQUAL);
+    }
+    c_base += m;
     
     // constraint: Alcohol Upper Limit
+    for (int j = 0; j < m; j ++) {
+        for (int i = 0; i < n; i ++) {
+            lp.set_a(i*m+j, c_base+j, W[i].a_per);
+        }
+        lp.set_b(c_base + j, 100*S[j].a_lim);
+    }
 
+    // objective
+    for (int i = 0; i < n; i ++) {
+        for (int j = 0; j < m; j ++) {
+            lp.set_c(i*m+j, - profit[i][j].first*100 + profit[i][j].second);
+        }
+    }
 
-
+    // solve the program, using ET as the exact type
+    Solution s = CGAL::solve_nonnegative_linear_program(lp, ET());
+    assert(s.solves_linear_program(lp));
+    
+    // output solution
+    if (s.is_infeasible()) cout << "RIOT!\n";
+    else {
+        CGAL::Quotient<ET> res = -s.objective_value()/100.0;
+        int sol = (int)floor(CGAL::to_double(res));
+        std::cout << sol << "\n"; 
+    }
 
 }
 
