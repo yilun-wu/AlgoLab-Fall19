@@ -45,6 +45,19 @@ class edge_adder {
   }
 };
 
+struct food {
+    int from, to;
+    int val;
+
+    food(int from, int to, int val): from(from), to(to), val(val) {}
+};
+
+bool compareFood(const food & a, const struct food &b) {
+    if (a.from != b.from) return a.from < b.from;
+    else if (a.to != b.to) return a.to < b.to;
+    else return a.val > b.val;
+}
+
 void algorithm() {
     int n, m; cin >> n >> m;
     graph G(n+2);
@@ -52,17 +65,34 @@ void algorithm() {
     const int v_target = n+1;
     edge_adder adder(G);
 
-    int total_flow = 0;
+    int total_flow = 0; vector<int> caps;
     for (int i = 0; i < n-1; i ++) {
-        int cap; cin >> cap; total_flow += cap;
+        int cap; cin >> cap; total_flow += cap; caps.push_back(cap);
         adder.add_edge(v_source, i, cap, 0);
         adder.add_edge(i+1, v_target, cap, 0);
         adder.add_edge(i, i+1, cap, 128);
     }
 
+    vector<food> foods; foods.reserve(m);
     for (int i = 0; i < m; i ++) {
         int from, to, val; cin >> from >> to >> val;
-        adder.add_edge(from, to, 1, 128*(to-from)-val);
+        foods.emplace_back(from, to, val);
+    }
+    sort(foods.begin(), foods.end(), compareFood);
+
+    vector<food> foods_to_add;
+    auto itr = foods.begin();
+    while (itr != foods.end()) {
+        auto itr_e = itr;
+        while (itr_e->to == itr->to && itr_e->from == itr->from) itr_e ++;
+        int num_foods = distance(itr, itr_e);
+        int min_cap = *min_element(caps.begin() + itr->from, caps.begin() + itr->to);
+        foods_to_add.insert(foods_to_add.begin(), itr, itr+min(num_foods, min_cap));
+        itr = itr_e;
+    }
+
+    for (auto &food:foods_to_add) {
+        adder.add_edge(food.from, food.to, 1, 128*(food.to-food.from)-food.val);
     }
 
     boost::successive_shortest_path_nonnegative_weights(G, v_source, v_target);
